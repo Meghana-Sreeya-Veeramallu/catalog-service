@@ -3,6 +3,7 @@ package com.example.catalog.model;
 import com.example.catalog.Exceptions.RestaurantAddressCannotBeNullOrEmptyException;
 import com.example.catalog.Exceptions.RestaurantNameCannotBeNullOrEmptyException;
 import jakarta.persistence.*;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.List;
 @Entity
 @Table(name = "restaurants")
 public class Restaurant {
+    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

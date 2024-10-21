@@ -5,7 +5,7 @@ import com.example.catalog.Exceptions.PriceMustBePositiveException;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "menuitems")
+@Table(name = "menuItems")
 public class MenuItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
