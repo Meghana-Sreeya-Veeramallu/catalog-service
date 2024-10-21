@@ -36,19 +36,19 @@ public class MenuItemServiceTest {
     private Restaurant restaurant;
 
     @BeforeEach
-     void setUp() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
-        restaurant = new Restaurant("Test Restaurant", "Test address");
+        restaurant = new Restaurant("Test Restaurant", "Test Address");
     }
 
     @Test
-     void testAddMenuItem() {
-        when(restaurantRepository.findByNameAndAddress("Test Restaurant", "Test Address"))
+    void testAddMenuItem() {
+        when(restaurantRepository.findById(restaurant.getId()))
                 .thenReturn(Optional.of(restaurant));
         when(menuItemRepository.findByNameAndRestaurantId("Pasta", restaurant.getId()))
                 .thenReturn(Optional.empty());
 
-        menuItemService.addMenuItem("Test Restaurant", "Test Address", "Pasta", 199);
+        menuItemService.addMenuItem(restaurant.getId(), "Pasta", 199);
 
         verify(menuItemRepository, times(1)).save(any(MenuItem.class));
     }
@@ -58,11 +58,11 @@ public class MenuItemServiceTest {
         String itemName = null;
         int price = 199;
 
-        when(restaurantRepository.findByNameAndAddress("Test Restaurant", "Test Address"))
+        when(restaurantRepository.findById(restaurant.getId()))
                 .thenReturn(Optional.of(restaurant));
 
         MenuItemNameCannotBeNullOrEmptyException exception = assertThrows(MenuItemNameCannotBeNullOrEmptyException.class, () ->
-            menuItemService.addMenuItem("Test Restaurant", "Test Address", itemName, price));
+                menuItemService.addMenuItem(restaurant.getId(), itemName, price));
 
         assertEquals("Menu item name cannot be null or empty", exception.getMessage());
         verify(menuItemRepository, never()).save(any(MenuItem.class));
@@ -73,13 +73,13 @@ public class MenuItemServiceTest {
         String itemName = "Pasta";
         int price = 0;
 
-        when(restaurantRepository.findByNameAndAddress("Test Restaurant", "Test Address"))
+        when(restaurantRepository.findById(restaurant.getId()))
                 .thenReturn(Optional.of(restaurant));
         when(menuItemRepository.findByNameAndRestaurantId(itemName, restaurant.getId()))
                 .thenReturn(Optional.empty());
 
         PriceMustBePositiveException exception = assertThrows(PriceMustBePositiveException.class, () ->
-            menuItemService.addMenuItem("Test Restaurant", "Test Address", itemName, price));
+                menuItemService.addMenuItem(restaurant.getId(), itemName, price));
 
         assertEquals("Price must be positive", exception.getMessage());
         verify(menuItemRepository, never()).save(any(MenuItem.class));
@@ -90,42 +90,41 @@ public class MenuItemServiceTest {
         String itemName = "Pasta";
         int price = -10;
 
-        when(restaurantRepository.findByNameAndAddress("Test Restaurant", "Test Address"))
+        when(restaurantRepository.findById(restaurant.getId()))
                 .thenReturn(Optional.of(restaurant));
         when(menuItemRepository.findByNameAndRestaurantId(itemName, restaurant.getId()))
                 .thenReturn(Optional.empty());
 
         PriceMustBePositiveException exception = assertThrows(PriceMustBePositiveException.class, () ->
-            menuItemService.addMenuItem("Test Restaurant", "Test Address", itemName, price));
+                menuItemService.addMenuItem(restaurant.getId(), itemName, price));
 
         assertEquals("Price must be positive", exception.getMessage());
         verify(menuItemRepository, never()).save(any(MenuItem.class));
     }
 
-
     @Test
-     void testAddMenuItemRestaurantNotFound() {
-        when(restaurantRepository.findByNameAndAddress("Invalid Restaurant", "Test Address"))
+    void testAddMenuItemRestaurantNotFound() {
+        when(restaurantRepository.findById(999L))
                 .thenReturn(Optional.empty());
 
         RestaurantNotFoundException exception = assertThrows(RestaurantNotFoundException.class, () ->
-            menuItemService.addMenuItem("Invalid Restaurant", "Test Address", "Pasta", 199));
+                menuItemService.addMenuItem(999L, "Pasta", 199));
 
-        assertThat(exception.getMessage()).isEqualTo("Restaurant 'Invalid Restaurant' not found");
+        assertThat(exception.getMessage()).isEqualTo("Restaurant with ID '999' not found");
         verify(menuItemRepository, times(0)).save(any(MenuItem.class));
     }
 
     @Test
     public void testAddMenuItemAlreadyExists() {
-        when(restaurantRepository.findByNameAndAddress("Test Restaurant", "Test Address"))
+        when(restaurantRepository.findById(restaurant.getId()))
                 .thenReturn(Optional.of(restaurant));
         when(menuItemRepository.findByNameAndRestaurantId("Pasta", restaurant.getId()))
                 .thenReturn(Optional.of(new MenuItem("Pasta", 199)));
 
         MenuItemAlreadyExistsException exception = assertThrows(MenuItemAlreadyExistsException.class, () ->
-            menuItemService.addMenuItem("Test Restaurant", "Test Address", "Pasta", 199));
+                menuItemService.addMenuItem(restaurant.getId(), "Pasta", 199));
 
-        assertThat(exception.getMessage()).isEqualTo("Menu item 'Pasta' already exists for restaurant 'Test Restaurant'");
+        assertThat(exception.getMessage()).isEqualTo("Menu item 'Pasta' already exists for restaurant with ID '" + restaurant.getId() + "'");
         verify(menuItemRepository, times(0)).save(any(MenuItem.class));
     }
 }

@@ -3,7 +3,9 @@ package com.example.catalog.model;
 import com.example.catalog.Exceptions.MenuItemNameCannotBeNullOrEmptyException;
 import com.example.catalog.Exceptions.PriceMustBePositiveException;
 import jakarta.persistence.*;
+import lombok.Setter;
 
+@Setter
 @Entity
 @Table(name = "menuItems")
 public class MenuItem {

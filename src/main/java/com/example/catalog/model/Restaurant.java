@@ -36,6 +36,7 @@ public class Restaurant {
 
     public MenuItem addMenuItem(String name, double price) {
         MenuItem menuItem = new MenuItem(name, price);
+        menuItem.setRestaurant(this);
         menuItems.add(menuItem);
         return menuItem;
     }

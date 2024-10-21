@@ -20,12 +20,12 @@ public class MenuItemService {
         this.restaurantRepository = restaurantRepository;
     }
 
-    public void addMenuItem(String restaurantName, String restaurantAddress, String itemName, double price) {
-        Restaurant restaurant = restaurantRepository.findByNameAndAddress(restaurantName, restaurantAddress)
-                .orElseThrow(() -> new RestaurantNotFoundException("Restaurant '" + restaurantName + "' not found"));
+    public void addMenuItem(Long restaurantId, String itemName, double price) {
+        Restaurant restaurant = restaurantRepository.findById(restaurantId)
+                .orElseThrow(() -> new RestaurantNotFoundException("Restaurant with ID '" + restaurantId + "' not found"));
 
         if (menuItemRepository.findByNameAndRestaurantId(itemName, restaurant.getId()).isPresent()) {
-            throw new MenuItemAlreadyExistsException("Menu item '" + itemName + "' already exists for restaurant '" + restaurantName + "'");
+            throw new MenuItemAlreadyExistsException("Menu item '" + itemName + "' already exists for restaurant with ID '" + restaurantId + "'");
         }
 
         MenuItem menuItem = restaurant.addMenuItem(itemName, price);

@@ -9,6 +9,6 @@ import java.util.Optional;
 
 @Repository
 public interface RestaurantRepository extends JpaRepository<Restaurant, Long> {
-    @Query("SELECT r FROM Restaurant r WHERE r.name = :name OR r.address = :address")
+    @Query("SELECT r FROM Restaurant r WHERE r.name = :name AND r.address = :address")
     Optional<Restaurant> findByNameAndAddress(String name, String address);
 }
