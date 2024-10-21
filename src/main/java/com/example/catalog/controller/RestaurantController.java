@@ -1,10 +1,13 @@
 package com.example.catalog.controller;
 
 import com.example.catalog.Dto.RestaurantDto;
+import com.example.catalog.model.Restaurant;
 import com.example.catalog.service.RestaurantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/catalog/restaurants")
@@ -21,5 +24,17 @@ public class RestaurantController {
         restaurantService.addRestaurant(restaurantDto.getName(), restaurantDto.getAddress());
         String successMessage = "Restaurant added successfully: " + restaurantDto.getName() + " at address: " + restaurantDto.getAddress();
         return ResponseEntity.ok(successMessage);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Restaurant>> getAllRestaurants() {
+        List<Restaurant> restaurants = restaurantService.getAllRestaurants();
+        return ResponseEntity.ok(restaurants);
+    }
+
+    @GetMapping("/{restaurantId}")
+    public ResponseEntity<Restaurant> getRestaurantById(@PathVariable Long restaurantId) {
+        Restaurant restaurant = restaurantService.getRestaurantById(restaurantId);
+        return ResponseEntity.ok(restaurant);
     }
 }

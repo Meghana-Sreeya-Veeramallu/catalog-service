@@ -3,6 +3,7 @@ package com.example.catalog.model;
 import com.example.catalog.Exceptions.MenuItemNameCannotBeNullOrEmptyException;
 import com.example.catalog.Exceptions.PriceMustBePositiveException;
 import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.Setter;
 
 @Setter
@@ -11,8 +12,11 @@ import lombok.Setter;
 public class MenuItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Getter
     private Long id;
+    @Getter
     private String name;
+    @Getter
     private double price;
 
     @ManyToOne

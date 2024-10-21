@@ -1,10 +1,13 @@
 package com.example.catalog.service;
 
 import com.example.catalog.Exceptions.RestaurantAlreadyExistsException;
+import com.example.catalog.Exceptions.RestaurantNotFoundException;
 import com.example.catalog.model.Restaurant;
 import com.example.catalog.repository.RestaurantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class RestaurantService {
@@ -22,5 +25,14 @@ public class RestaurantService {
 
         Restaurant restaurant = new Restaurant(name, address);
         restaurantRepository.save(restaurant);
+    }
+
+    public List<Restaurant> getAllRestaurants() {
+        return restaurantRepository.findAll();
+    }
+
+    public Restaurant getRestaurantById(Long restaurantId) {
+        return restaurantRepository.findById(restaurantId)
+                .orElseThrow(() -> new RestaurantNotFoundException("Restaurant with id '" + restaurantId + "' not found"));
     }
 }

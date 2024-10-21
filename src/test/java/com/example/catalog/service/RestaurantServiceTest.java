@@ -3,6 +3,7 @@ package com.example.catalog.service;
 import com.example.catalog.Exceptions.RestaurantAddressCannotBeNullOrEmptyException;
 import com.example.catalog.Exceptions.RestaurantAlreadyExistsException;
 import com.example.catalog.Exceptions.RestaurantNameCannotBeNullOrEmptyException;
+import com.example.catalog.Exceptions.RestaurantNotFoundException;
 import com.example.catalog.model.Restaurant;
 import com.example.catalog.repository.RestaurantRepository;
 import org.junit.jupiter.api.Test;
@@ -10,10 +11,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.Optional;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -91,5 +91,54 @@ class RestaurantServiceTest {
         restaurantService.addRestaurant(secondRestaurantName, secondRestaurantAddress);
 
         verify(restaurantRepository, times(2)).save(any(Restaurant.class));
+    }
+
+    @Test
+    void testGetAllRestaurants() {
+        Restaurant restaurant1 = new Restaurant("Burger King", "Hyderabad");
+        Restaurant restaurant2 = new Restaurant("Pizza Hut", "Bengaluru");
+
+        when(restaurantRepository.findAll()).thenReturn(Arrays.asList(restaurant1, restaurant2));
+
+        List<Restaurant> result = restaurantService.getAllRestaurants();
+
+        assertEquals(2, result.size());
+        verify(restaurantRepository, times(1)).findAll();
+    }
+
+    @Test
+    void testGetAllRestaurantsEmpty() {
+        when(restaurantRepository.findAll()).thenReturn(Collections.emptyList());
+
+        List<Restaurant> result = restaurantService.getAllRestaurants();
+
+        assertEquals(0, result.size());
+        verify(restaurantRepository, times(1)).findAll();
+    }
+
+    @Test
+    void testGetRestaurantByIdFound() {
+        Long restaurantId = 1L;
+        Restaurant restaurant = new Restaurant("Burger King", "Hyderabad");
+
+        when(restaurantRepository.findById(restaurantId)).thenReturn(Optional.of(restaurant));
+
+        Restaurant result = restaurantService.getRestaurantById(restaurantId);
+
+        assertEquals(restaurant, result);
+        verify(restaurantRepository, times(1)).findById(restaurantId);
+    }
+
+    @Test
+    void testGetRestaurantByIdNotFound() {
+        Long restaurantId = 999L;
+
+        when(restaurantRepository.findById(restaurantId)).thenReturn(Optional.empty());
+
+        RestaurantNotFoundException exception = assertThrows(RestaurantNotFoundException.class, () ->
+                restaurantService.getRestaurantById(restaurantId));
+
+        assertEquals("Restaurant with id '999' not found", exception.getMessage());
+        verify(restaurantRepository, times(1)).findById(restaurantId);
     }
 }
