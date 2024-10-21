@@ -24,10 +24,8 @@ public class MenuItemService {
     }
 
     public void addMenuItem(Long restaurantId, String itemName, double price) {
-        Restaurant restaurant = restaurantRepository.findById(restaurantId)
-                .orElseThrow(() -> new RestaurantNotFoundException("Restaurant with ID '" + restaurantId + "' not found"));
-
-        if (menuItemRepository.findByNameAndRestaurantId(itemName, restaurant.getId()).isPresent()) {
+        Restaurant restaurant = findRestaurantById(restaurantId);
+        if (menuItemRepository.findByNameAndRestaurantId(itemName, restaurantId).isPresent()) {
             throw new MenuItemAlreadyExistsException("Menu item '" + itemName + "' already exists for restaurant with ID '" + restaurantId + "'");
         }
 
@@ -36,17 +34,18 @@ public class MenuItemService {
     }
 
     public List<MenuItem> getAllMenuItems(Long restaurantId) {
-        restaurantRepository.findById(restaurantId)
-                .orElseThrow(() -> new RestaurantNotFoundException("Restaurant with ID '" + restaurantId + "' not found"));
-
+        findRestaurantById(restaurantId);
         return menuItemRepository.findByRestaurantId(restaurantId);
     }
 
     public MenuItem getMenuItemById(Long menuItemId, Long restaurantId) {
-        restaurantRepository.findById(restaurantId)
-                .orElseThrow(() -> new RestaurantNotFoundException("Restaurant with ID '" + restaurantId + "' not found"));
-
+        findRestaurantById(restaurantId);
         return menuItemRepository.findById(menuItemId)
                 .orElseThrow(() -> new MenuItemNotFoundException("Menu item with ID '" + menuItemId + "' not found for restaurant with ID '" + restaurantId + "'"));
+    }
+
+    private Restaurant findRestaurantById(Long restaurantId) {
+        return restaurantRepository.findById(restaurantId)
+                .orElseThrow(() -> new RestaurantNotFoundException("Restaurant with ID '" + restaurantId + "' not found"));
     }
 }
