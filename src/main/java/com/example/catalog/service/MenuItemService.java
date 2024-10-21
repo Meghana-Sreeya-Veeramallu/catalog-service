@@ -1,6 +1,7 @@
 package com.example.catalog.service;
 
 import com.example.catalog.Exceptions.MenuItemAlreadyExistsException;
+import com.example.catalog.Exceptions.MenuItemNotFoundException;
 import com.example.catalog.Exceptions.RestaurantNotFoundException;
 import com.example.catalog.model.MenuItem;
 import com.example.catalog.model.Restaurant;
@@ -8,6 +9,8 @@ import com.example.catalog.repository.MenuItemRepository;
 import com.example.catalog.repository.RestaurantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class MenuItemService {
@@ -30,5 +33,20 @@ public class MenuItemService {
 
         MenuItem menuItem = restaurant.addMenuItem(itemName, price);
         menuItemRepository.save(menuItem);
+    }
+
+    public List<MenuItem> getAllMenuItems(Long restaurantId) {
+        restaurantRepository.findById(restaurantId)
+                .orElseThrow(() -> new RestaurantNotFoundException("Restaurant with ID '" + restaurantId + "' not found"));
+
+        return menuItemRepository.findByRestaurantId(restaurantId);
+    }
+
+    public MenuItem getMenuItemById(Long menuItemId, Long restaurantId) {
+        restaurantRepository.findById(restaurantId)
+                .orElseThrow(() -> new RestaurantNotFoundException("Restaurant with ID '" + restaurantId + "' not found"));
+
+        return menuItemRepository.findById(menuItemId)
+                .orElseThrow(() -> new MenuItemNotFoundException("Menu item with ID '" + menuItemId + "' not found for restaurant with ID '" + restaurantId + "'"));
     }
 }
