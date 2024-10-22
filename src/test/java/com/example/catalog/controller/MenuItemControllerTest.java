@@ -62,6 +62,24 @@ class MenuItemControllerTest {
     }
 
     @Test
+    public void testAddMenuItemWithoutAuthentication() throws Exception {
+        MenuItemDto menuItemDto = new MenuItemDto("Pasta", 199.0);
+        String jsonRequestBody = objectMapper.writeValueAsString(menuItemDto);
+        Long restaurantId = 1L;
+
+        doThrow(new UserNotAuthorizedException("User is not authorized"))
+                .when(menuItemService).addMenuItem(restaurantId, "Pasta", 199.0);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/catalog/restaurants/{restaurantId}/menuItems", restaurantId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonRequestBody))
+                .andExpect(status().isForbidden())
+                .andExpect(content().string("Access Denied: User is not authorized"));
+
+        verify(menuItemService, times(1)).addMenuItem(anyLong(), any(), anyDouble());
+    }
+
+    @Test
     void testAddMenuItemWithNullName() throws Exception {
         MenuItemDto menuItemDto = new MenuItemDto(null, 199.0);
         String jsonRequestBody = objectMapper.writeValueAsString(menuItemDto);

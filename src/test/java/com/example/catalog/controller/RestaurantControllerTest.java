@@ -20,8 +20,7 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 class RestaurantControllerTest {
 
@@ -55,6 +54,21 @@ class RestaurantControllerTest {
         String responseBody = mvcResult.getResponse().getContentAsString();
         assertEquals("Restaurant added successfully: Burger King at address: Hyderabad", responseBody);
         verify(restaurantService, times(1)).addRestaurant("Burger King", "Hyderabad");
+    }
+
+    @Test
+    public void testAddRestaurantWithoutAuthentication() throws Exception {
+        RestaurantDto restaurantDto = new RestaurantDto("Burger King", "Hyderabad");
+        String jsonRequestBody = objectMapper.writeValueAsString(restaurantDto);
+
+        doThrow(new UserNotAuthorizedException("User is not authorized"))
+                .when(restaurantService).addRestaurant("Burger King", "Hyderabad");
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/catalog/restaurants")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonRequestBody))
+                .andExpect(status().isForbidden())
+                .andExpect(content().string("Access Denied: User is not authorized"));
     }
 
     @Test
