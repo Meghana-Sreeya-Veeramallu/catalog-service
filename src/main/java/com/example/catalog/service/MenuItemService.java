@@ -40,7 +40,7 @@ public class MenuItemService {
 
     public MenuItem getMenuItemById(Long menuItemId, Long restaurantId) {
         findRestaurantById(restaurantId);
-        return menuItemRepository.findById(menuItemId)
+        return menuItemRepository.findByIdAndRestaurantId(menuItemId, restaurantId)
                 .orElseThrow(() -> new MenuItemNotFoundException("Menu item with ID '" + menuItemId + "' not found for restaurant with ID '" + restaurantId + "'"));
     }
 
